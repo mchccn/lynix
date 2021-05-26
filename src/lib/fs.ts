@@ -1,13 +1,6 @@
 import { createContext } from "react";
+import FileSystem from "./FileSystem";
 
-const filesystem = createContext(
-    new (class FileSystem {
-        #pwd = "/";
-
-        public get pwd() {
-            return this.#pwd;
-        }
-    })()
-);
+const filesystem = createContext(new FileSystem());
 
 export default filesystem;

@@ -20,11 +20,12 @@ export default function ContextMenu({
         <div className="contextmenu absolute z-50 flex flex-col w-80 bg-gray-900 rounded p-1" style={{ top: y, left: x }}>
             {options.map((group, i, a) => (
                 <>
-                    <div className="contextmenu-group flex flex-col">
-                        {group.map(({ icon, text, shortcut, callback }) => (
+                    <div className="contextmenu-group flex flex-col" key={i}>
+                        {group.map(({ icon, text, shortcut, callback }, i) => (
                             <div
                                 className="contextmenu-item flex items-center justify-between hover:bg-gray-800 hover:bg-opacity-10 text-sm select-none rounded px-2 py-1 cursor-pointer"
                                 onClick={callback}
+                                key={i}
                             >
                                 <div className="contextmenu-item-desc grid grid-cols-2">
                                     <p className="text-gray-400 w-8">{icon}</p>

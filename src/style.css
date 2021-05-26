@@ -16,7 +16,7 @@ html {
 }
 
 .desktop > .taskbar > .launcher:focus {
-    outline: none;
+    outline: 0px solid transparent;
 }
 
 .desktop > .taskbar > .launcher:hover {
