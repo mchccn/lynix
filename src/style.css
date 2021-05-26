@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html {
+    overflow: hidden;
+    overscroll-behavior: none;
+    scroll-behavior: smooth;
+}
+
+.desktop > .taskbar > .launcher:focus {
+    outline: none;
+}
+
+.desktop > .taskbar > .launcher:hover {
+    transition: 0.15s opacity ease-in-out;
+}
+
+.desktop > .taskbar > .launcher:hover {
+    opacity: 0.9;
+}
+
+.desktop {
+    background-image: url("https://wallpaperaccess.com/full/983279.jpg");
+}
