@@ -48,6 +48,12 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
             <div
                 className="desktop absolute top-0 left-0 w-full h-full flex flex-col"
                 onClick={(e) => {
+                    if (
+                        !(e.target as HTMLElement).closest(".launcher")?.classList.contains("launcher") &&
+                        !(e.target as HTMLElement).closest(".launcher-button")?.classList.contains("launcher-button")
+                    )
+                        setLauncherActive(false);
+
                     setContextMenu(hiddenContextMenu);
                 }}
                 onContextMenu={(e) => {
@@ -88,7 +94,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                     }}
                 >
                     <button
-                        className="launcher w-8 h-8 grid grid-cols-2 grid-rows-2 place-items-center border-r border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors"
+                        className="launcher-button w-8 h-8 grid grid-cols-2 grid-rows-2 place-items-center border-r border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors focus:outline-none"
                         onFocus={(e) => e.target.blur()}
                         onClick={() => setLauncherActive(!launcherActive)}
                     >

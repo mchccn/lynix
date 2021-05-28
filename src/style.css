@@ -15,10 +15,6 @@ html {
     scroll-behavior: smooth;
 }
 
-.desktop > .taskbar > .launcher:focus {
-    outline: 0px solid transparent;
-}
-
 .desktop {
     background-image: url("https://wallpaperaccess.com/full/983279.jpg");
 }

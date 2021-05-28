@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { Rnd } from "react-rnd";
 import { WindowType } from "../lib/windows";
 
@@ -35,12 +35,24 @@ export default function Window({
         >
     >;
 }) {
-    const [zIndex, setZIndex] = useState(10);
-
     useEffect(() => {
-        const win = document.querySelector(`.win.pid-${pid}`)!;
+        const win = document.querySelector(`.win.pid-${pid}`) as HTMLElement;
 
-        console.log(win);
+        win.tabIndex = 1;
+
+        const focus = () => (win.style.zIndex = "50");
+
+        const blur = () => (win.style.zIndex = "10");
+
+        win.addEventListener("focus", focus);
+
+        win.addEventListener("blur", blur);
+
+        return () => {
+            win.removeEventListener("focus", focus);
+
+            win.removeEventListener("blur", blur);
+        };
     }, []);
 
     return (
@@ -49,8 +61,8 @@ export default function Window({
             minHeight={24}
             bounds=".apps"
             dragHandleClassName="win-title"
-            style={{ display: "flex", backgroundColor: "#eeeeee", zIndex }}
-            className={`win flex-col rounded shadow border border-gray-900 pid-${pid}`}
+            style={{ display: "flex", backgroundColor: "#eeeeee", zIndex: 10 }}
+            className={`win flex-col rounded shadow border border-gray-900 focus:outline-none pid-${pid}`}
             default={{ x: window.innerWidth / 2 - width / 2, y: window.innerHeight / 2 - height / 2, width, height }}
             resizeHandleStyles={{
                 bottom: { cursor: "ns-resize" },
