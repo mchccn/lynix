@@ -1,26 +1,7 @@
-import { Dispatch, SetStateAction } from "react";
 import Browser from "../components/apps/Browser";
 import { WindowType } from "./windows";
 
-export default function launch(
-    type: WindowType,
-    windows: {
-        pid: string;
-        type: WindowType;
-        minimized: boolean;
-        component: React.ReactNode;
-    }[],
-    setWindows: Dispatch<
-        SetStateAction<
-            {
-                pid: string;
-                type: WindowType;
-                minimized: boolean;
-                component: React.ReactNode;
-            }[]
-        >
-    >
-) {
+export default function launch(type: WindowType) {
     const pid = Date.now().toString(16).padEnd(16, "0");
 
     switch (type) {
@@ -28,8 +9,7 @@ export default function launch(
             return {
                 pid,
                 type,
-                minimized: false,
-                component: <Browser pid={pid} windows={windows} setWindows={setWindows} />,
+                component: <Browser pid={pid} />,
             };
     }
 }

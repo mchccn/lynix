@@ -5,26 +5,17 @@ import React, { useContext, useEffect, useState } from "react";
 import ContextMenu from "../components/ContextMenu";
 import Wrapper from "../components/Wrapper";
 import filesystem from "../lib/fs";
-import launch from "../lib/launch";
 import minimizers from "../lib/minimizers";
-import { typeToIcon, WindowType } from "../lib/windows";
+import windows, { typeToIcon, WindowType } from "../lib/windows";
 
 const hiddenContextMenu = <ContextMenu options={[]} x={0} y={0} />;
 
 export default function Index({ assetPrefix }: { assetPrefix: string }) {
     const fs = useContext(filesystem);
     const toggles = useContext(minimizers);
+    const activeWindows = useContext(windows);
 
     const [keys, setKeys] = useState<{ [key: string]: boolean }>({});
-
-    const [activeWindows, setActiveWindows] = useState<
-        {
-            pid: string;
-            type: WindowType;
-            minimized: boolean;
-            component: React.ReactNode;
-        }[]
-    >([]);
 
     const allApps: {
         name: string;
@@ -41,6 +32,8 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
     const [launcherSearch, setLauncherSearch] = useState("");
     const [filteredApps, setFilteredApps] = useState([...allApps]);
 
+    const [time, setTime] = useState(new Date());
+
     useEffect(() => {
         if (launcherSearch)
             setFilteredApps(
@@ -52,17 +45,31 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
     }, [launcherSearch]);
 
     useEffect(() => {
-        window.addEventListener("keydown", (e) => {
+        const keydown = (e: KeyboardEvent) => {
             keys[e.code] = true;
 
             for (const [shortcut, action] of shortcuts.entries()) {
                 if (shortcut.split("+").every((key) => keys[key])) return action();
             }
-        });
+        };
 
-        window.addEventListener("keyup", (e) => {
+        const keyup = (e: KeyboardEvent) => {
             delete keys[e.code];
-        });
+        };
+
+        window.addEventListener("keydown", keydown);
+
+        window.addEventListener("keyup", keyup);
+
+        const interval = setInterval(() => setTime(new Date()), 1000);
+
+        return () => {
+            window.removeEventListener("keydown", keydown);
+
+            window.removeEventListener("keyup", keyup);
+
+            clearInterval(interval);
+        };
     }, []);
 
     const shortcuts = new Map<string, () => void>();
@@ -124,15 +131,9 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                     );
                 }}
             >
-                <div
-                    className="taskbar-container relative bg-gray-800 bg-opacity-50 flex items-center"
-                    style={{
-                        height: "2rem",
-                        width: "max(100vw, 177.778vh)",
-                    }}
-                >
+                <div className="taskbar-container relative bg-gray-800 bg-opacity-50 flex items-center h-8 w-full">
                     <button
-                        className="launcher-button w-8 h-8 grid grid-cols-2 grid-rows-2 place-items-center border-r border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors focus:outline-none"
+                        className="launcher-button w-8 h-8 grid grid-cols-2 grid-rows-2 place-items-center border-r border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors focus:outline-none flex-shrink-0"
                         onClick={() => setLauncherActive(!launcherActive)}
                     >
                         <div className="bg-gray-600 w-1.5 h-1.5 -mr-1 -mb-1"></div>
@@ -140,20 +141,31 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                         <div className="bg-gray-600 w-1.5 h-1.5 -mr-1 -mt-1"></div>
                         <div className="bg-gray-600 w-1.5 h-1.5 -ml-1 -mt-1"></div>
                     </button>
-                    <div className="taskbar flex-1 flex items-center">
-                        {activeWindows.map(({ pid, type }, i) => (
-                            <div
-                                className="w-8 h-8 grid place-items-center cursor-pointer hover:bg-gray-800 hover:bg-opacity-50 transition-colors"
-                                onClick={() => {
-                                    toggles.current[pid]();
-                                }}
-                                key={i}
-                            >
-                                <img className="w-4 h-4" src={typeToIcon[type]} alt={pid} />
-                            </div>
-                        ))}
+                    <div className="taskbar-wrapper flex min-w-0 overflow-x-scroll hide-scrollbar flex-1">
+                        <div className="taskbar flex items-center">
+                            {activeWindows.current.map(({ pid, type }, i) => (
+                                <div
+                                    className="w-8 h-8 grid place-items-center cursor-pointer hover:bg-gray-800 hover:bg-opacity-50 transition-colors"
+                                    onClick={() => {
+                                        toggles.current[pid]();
+                                    }}
+                                    key={i}
+                                >
+                                    <img className="w-4 h-4 select-none" src={typeToIcon[type]} alt={pid} />
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                    <div className="taskbar-info"></div>
+                    <div className="taskbar-info h-full px-2 grid place-items-center border-l border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors cursor-pointer flex-shrink-0">
+                        <div className="general-info grid place-items-center">
+                            <p className="tasknar-time text-gray-100 text-xs">
+                                {Math.abs(time.getHours() - 12)
+                                    .toString()
+                                    .padStart(2, "0")}
+                                :{time.getMinutes().toString().padStart(2, "0")} {time.getHours() >= 12 ? "PM" : "AM"}
+                            </p>
+                        </div>
+                    </div>
                     <div
                         className="launcher absolute top-full w-80 bg-gray-900 text-gray-100 px-2 py-1 shadow-sm flex flex-col"
                         style={{
@@ -165,7 +177,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                                 <path d="M15.853 16.56c-1.683 1.517-3.911 2.44-6.353 2.44-5.243 0-9.5-4.257-9.5-9.5s4.257-9.5 9.5-9.5 9.5 4.257 9.5 9.5c0 2.442-.923 4.67-2.44 6.353l7.44 7.44-.707.707-7.44-7.44zm-6.353-15.56c4.691 0 8.5 3.809 8.5 8.5s-3.809 8.5-8.5 8.5-8.5-3.809-8.5-8.5 3.809-8.5 8.5-8.5z" />
                             </svg>
                             <input
-                                className="bg-gray-800 bg-opacity-50 text-gray-100 pl-8 w-full text-sm py-1 rounded-sm outline-none"
+                                className="bg-gray-800 bg-opacity-50 text-gray-100 pl-8 w-full text-sm py-1 rounded-sm outline-none z-50"
                                 id="launcher-search-input"
                                 type="text"
                                 onChange={(e) => setLauncherSearch(e.target.value)}
@@ -175,7 +187,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                                 autoCorrect="false"
                                 onKeyDown={(e) => {
                                     if (e.code === "Enter") {
-                                        setActiveWindows([...activeWindows, launch(filteredApps[0].type, activeWindows, setActiveWindows)]);
+                                        activeWindows.add(filteredApps[0].type);
                                         setLauncherActive(false);
                                         setLauncherSearch("");
                                     }
@@ -189,7 +201,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                                 <div
                                     className="flex items-center gap-2.5 cursor-pointer px-3 py-2 hover:bg-gray-800 hover:bg-opacity-25 rounded"
                                     onClick={() => {
-                                        setActiveWindows([...activeWindows, launch(type, activeWindows, setActiveWindows)]);
+                                        activeWindows.add(filteredApps[0].type);
                                         setLauncherActive(false);
                                         setLauncherSearch("");
                                     }}
@@ -203,8 +215,8 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                     </div>
                 </div>
                 <div className="apps flex-1"></div>
-                {activeWindows.map(({ component }, i) => (
-                    <Wrapper key={i}>{component}</Wrapper>
+                {activeWindows.current.map(({ component, pid }) => (
+                    <Wrapper key={pid}>{component}</Wrapper>
                 ))}
                 {contextMenu}
             </div>

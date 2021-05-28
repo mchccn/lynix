@@ -1,7 +1,7 @@
-import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
 import minimizers from "../lib/minimizers";
-import { WindowType } from "../lib/windows";
+import windows from "../lib/windows";
 
 export default function Window({
     icon,
@@ -11,8 +11,6 @@ export default function Window({
     width,
     height,
     minimized,
-    windows,
-    setWindows,
 }: {
     icon?: string | React.ReactNode;
     title?: string;
@@ -21,23 +19,9 @@ export default function Window({
     width: number;
     height: number;
     minimized?: boolean;
-    windows: {
-        pid: string;
-        type: WindowType;
-        minimized: boolean;
-        component: React.ReactNode;
-    }[];
-    setWindows: Dispatch<
-        SetStateAction<
-            {
-                pid: string;
-                type: WindowType;
-                minimized: boolean;
-                component: React.ReactNode;
-            }[]
-        >
-    >;
 }) {
+    const activeWindows = useContext(windows);
+
     const toggles = useContext(minimizers);
 
     const [isMinimized, setIsMinimized] = useState(minimized ?? false);
@@ -144,9 +128,9 @@ export default function Window({
                             onClick={() => setIsMaximized(!isMaximized)}
                         ></button>
                         <button
-                            className="win-close  border-none focus:outline-none w-3 h-3 rounded-full cursor-pointer"
+                            className="win-close border-none focus:outline-none w-3 h-3 rounded-full cursor-pointer"
                             style={{ background: "red" }}
-                            onClick={() => setWindows(windows.filter((w) => w.pid !== pid))}
+                            onClick={() => activeWindows.remove(pid)}
                         ></button>
                     </nav>
                 </header>
