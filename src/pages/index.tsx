@@ -1,3 +1,4 @@
+import leven from "leven";
 import { GetStaticProps } from "next";
 import Head from "next/head";
 import React, { useContext, useEffect, useState } from "react";
@@ -13,6 +14,8 @@ const hiddenContextMenu = <ContextMenu options={[]} x={0} y={0} />;
 export default function Index({ assetPrefix }: { assetPrefix: string }) {
     const fs = useContext(filesystem);
     const toggles = useContext(minimizers);
+
+    const [keys, setKeys] = useState<{ [key: string]: boolean }>({});
 
     const [activeWindows, setActiveWindows] = useState<
         {
@@ -39,9 +42,40 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
     const [filteredApps, setFilteredApps] = useState([...allApps]);
 
     useEffect(() => {
-        if (launcherSearch) setFilteredApps([...allApps].filter((app) => app.name.toLowerCase().includes(launcherSearch.toLowerCase())));
+        if (launcherSearch)
+            setFilteredApps(
+                [...allApps]
+                    .filter((app) => app.name.toLowerCase().includes(launcherSearch.toLowerCase()))
+                    .sort((a, b) => leven(b.name.toLowerCase(), launcherSearch.toLowerCase()) - leven(a.name.toLowerCase(), launcherSearch.toLowerCase()))
+            );
         else setFilteredApps([...allApps]);
     }, [launcherSearch]);
+
+    useEffect(() => {
+        window.addEventListener("keydown", (e) => {
+            keys[e.code] = true;
+
+            for (const [shortcut, action] of shortcuts.entries()) {
+                if (shortcut.split("+").every((key) => keys[key])) return action();
+            }
+        });
+
+        window.addEventListener("keyup", (e) => {
+            delete keys[e.code];
+        });
+    }, []);
+
+    const shortcuts = new Map<string, () => void>();
+
+    shortcuts.set("ControlLeft+Space", () => {
+        setLauncherActive(true);
+
+        document.getElementById("launcher-search-input")!.focus();
+    });
+
+    shortcuts.set("ControlRight+Space", () => {
+        setLauncherActive(false);
+    });
 
     return (
         <>
@@ -99,7 +133,6 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                 >
                     <button
                         className="launcher-button w-8 h-8 grid grid-cols-2 grid-rows-2 place-items-center border-r border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors focus:outline-none"
-                        onFocus={(e) => e.target.blur()}
                         onClick={() => setLauncherActive(!launcherActive)}
                     >
                         <div className="bg-gray-600 w-1.5 h-1.5 -mr-1 -mb-1"></div>
@@ -133,9 +166,22 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                             </svg>
                             <input
                                 className="bg-gray-800 bg-opacity-50 text-gray-100 pl-8 w-full text-sm py-1 rounded-sm outline-none"
+                                id="launcher-search-input"
                                 type="text"
                                 onChange={(e) => setLauncherSearch(e.target.value)}
                                 value={launcherSearch}
+                                autoComplete="false"
+                                autoCapitalize="false"
+                                autoCorrect="false"
+                                onKeyDown={(e) => {
+                                    if (e.code === "Enter") {
+                                        setActiveWindows([...activeWindows, launch(filteredApps[0].type, activeWindows, setActiveWindows)]);
+                                        setLauncherActive(false);
+                                        setLauncherSearch("");
+                                    }
+
+                                    return;
+                                }}
                             />
                         </div>
                         <div className="flex flex-col gap-2 px-1 py-2">

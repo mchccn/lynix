@@ -121,7 +121,9 @@ export default function Window({
                 setOldPos({ x, y });
                 setPos({ x, y });
             }}
-            onResize={(e, direction, ref) => {
+            onResize={(e, direction, ref, d, { x, y }) => {
+                setOldPos({ x, y });
+                setPos({ x, y });
                 setOldSize({ width: ref.offsetWidth, height: ref.offsetHeight });
                 setSize({ width: ref.offsetWidth, height: ref.offsetHeight });
             }}
