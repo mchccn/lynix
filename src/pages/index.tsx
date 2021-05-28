@@ -2,15 +2,17 @@ import { GetStaticProps } from "next";
 import Head from "next/head";
 import React, { useContext, useEffect, useState } from "react";
 import ContextMenu from "../components/ContextMenu";
+import Wrapper from "../components/Wrapper";
 import filesystem from "../lib/fs";
-import getComponent from "../lib/getComponent";
 import launch from "../lib/launch";
+import minimizers from "../lib/minimizers";
 import { typeToIcon, WindowType } from "../lib/windows";
 
 const hiddenContextMenu = <ContextMenu options={[]} x={0} y={0} />;
 
 export default function Index({ assetPrefix }: { assetPrefix: string }) {
     const fs = useContext(filesystem);
+    const toggles = useContext(minimizers);
 
     const [activeWindows, setActiveWindows] = useState<
         {
@@ -106,22 +108,13 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                         <div className="bg-gray-600 w-1.5 h-1.5 -ml-1 -mt-1"></div>
                     </button>
                     <div className="taskbar flex-1 flex items-center">
-                        {activeWindows.map(({ pid, type }) => (
+                        {activeWindows.map(({ pid, type }, i) => (
                             <div
                                 className="w-8 h-8 grid place-items-center cursor-pointer hover:bg-gray-800 hover:bg-opacity-50 transition-colors"
                                 onClick={() => {
-                                    const copy = [...activeWindows];
-
-                                    const index = copy.findIndex((w) => w.pid === pid)!;
-
-                                    copy[index].minimized = !copy[index].minimized;
-
-                                    const Component = getComponent[type];
-
-                                    copy[index].component = <Component pid={pid} windows={activeWindows} setWindows={setActiveWindows} minimized={copy[index].minimized} />;
-
-                                    setActiveWindows(copy);
+                                    toggles.current[pid]();
                                 }}
+                                key={i}
                             >
                                 <img className="w-4 h-4" src={typeToIcon[type]} alt={pid} />
                             </div>
@@ -164,7 +157,9 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                     </div>
                 </div>
                 <div className="apps flex-1"></div>
-                {activeWindows.map(({ component }) => component)}
+                {activeWindows.map(({ component }, i) => (
+                    <Wrapper key={i}>{component}</Wrapper>
+                ))}
                 {contextMenu}
             </div>
         </>

@@ -1,8 +1,7 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
+import minimizers from "../lib/minimizers";
 import { WindowType } from "../lib/windows";
-
-const log = (msg: string) => console.log(`%c ${msg}`, "color: orange;");
 
 export default function Window({
     icon,
@@ -39,6 +38,8 @@ export default function Window({
         >
     >;
 }) {
+    const toggles = useContext(minimizers);
+
     const [isMinimized, setIsMinimized] = useState(minimized ?? false);
 
     const [isMaximized, setIsMaximized] = useState(false);
@@ -63,22 +64,34 @@ export default function Window({
     useEffect(() => {
         const win = document.querySelector(`.win.pid-${pid}`) as HTMLElement;
 
-        win.tabIndex = 1;
-
         const focus = () => (win.style.zIndex = "50");
 
         const blur = () => (win.style.zIndex = "10");
 
-        win.addEventListener("focus", focus);
+        if (!isMinimized) {
+            win.tabIndex = 1;
 
-        win.addEventListener("blur", blur);
+            win.addEventListener("focus", focus);
+
+            win.addEventListener("blur", blur);
+        }
+
+        toggles.add(pid, () => {
+            setIsMinimized(!isMinimized);
+
+            return isMinimized;
+        });
 
         return () => {
-            win.removeEventListener("focus", focus);
+            if (!isMinimized) {
+                win.removeEventListener("focus", focus);
 
-            win.removeEventListener("blur", blur);
+                win.removeEventListener("blur", blur);
+            }
+
+            if (!toggles.remove(pid)) throw new Error("Unable to remove minimize toggle.");
         };
-    }, []);
+    });
 
     if (isMinimized) return null;
 
