@@ -167,7 +167,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                         </div>
                     </div>
                     <div
-                        className="launcher absolute top-full w-80 bg-gray-900 text-gray-100 px-2 py-1 shadow-sm flex flex-col"
+                        className="launcher absolute top-full w-80 bg-gray-900 text-gray-100 px-2 py-1 shadow-sm flex flex-col z-50"
                         style={{
                             display: launcherActive ? "flex" : "none",
                         }}
@@ -215,10 +215,10 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                     </div>
                 </div>
                 <div className="apps flex-1"></div>
+                {contextMenu}
                 {activeWindows.current.map(({ component, pid }) => (
                     <Wrapper key={pid}>{component}</Wrapper>
                 ))}
-                {contextMenu}
             </div>
         </>
     );

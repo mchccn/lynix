@@ -15,17 +15,22 @@ const windows = createContext<{
     }[];
     add: (type: WindowType) => void;
     remove: (pid: string) => void;
+    moveToTop: (pid: string) => void;
 }>({
     current: [],
     add(type) {
         this.current.push(launch(type));
     },
     remove(pid) {
-        console.log(this.current, pid);
-
         this.current = this.current.filter((w) => w.pid !== pid);
-
-        console.log(this.current);
+    },
+    moveToTop(pid) {
+        this.current.push(
+            this.current.splice(
+                this.current.findIndex((w) => w.pid === pid),
+                1
+            )[0]
+        );
     },
 });
 

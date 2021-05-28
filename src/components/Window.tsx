@@ -48,16 +48,18 @@ export default function Window({
     useEffect(() => {
         const win = document.querySelector(`.win.pid-${pid}`) as HTMLElement;
 
-        const focus = () => (win.style.zIndex = "50");
+        const focus = () => activeWindows.moveToTop(pid);
 
-        const blur = () => (win.style.zIndex = "10");
+        const context = (e: MouseEvent) => {
+            e.stopPropagation();
+        };
 
         if (!isMinimized) {
             win.tabIndex = 1;
 
             win.addEventListener("focus", focus);
 
-            win.addEventListener("blur", blur);
+            win.addEventListener("contextmenu", context);
         }
 
         toggles.add(pid, () => {
@@ -70,7 +72,7 @@ export default function Window({
             if (!isMinimized) {
                 win.removeEventListener("focus", focus);
 
-                win.removeEventListener("blur", blur);
+                win.removeEventListener("contextmenu", context);
             }
 
             if (!toggles.remove(pid)) throw new Error("Unable to remove minimize toggle.");
@@ -87,8 +89,8 @@ export default function Window({
             minHeight={24}
             bounds=".apps"
             dragHandleClassName="win-title"
-            style={{ display: "flex", backgroundColor: "#eeeeee", zIndex: 10 }}
-            className={`win flex-col rounded shadow border border-gray-900 focus:outline-none pid-${pid}`}
+            style={{ display: "flex", backgroundColor: "#eeeeee" }}
+            className={`win flex-col rounded shadow border border-gray-900 focus:outline-none z-20 pid-${pid}`}
             resizeHandleStyles={{
                 bottom: { cursor: "ns-resize" },
                 bottomLeft: { cursor: "nesw-resize" },
