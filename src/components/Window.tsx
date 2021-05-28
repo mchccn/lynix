@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
 import { WindowType } from "../lib/windows";
 
@@ -35,6 +35,27 @@ export default function Window({
         >
     >;
 }) {
+    const [isMaximized, setIsMaximized] = useState(false);
+    const [pos, setPos] = useState({ x: window.innerWidth / 2 - width / 2, y: (window.innerHeight - 32) / 2 - height / 2 });
+    const [size, setSize] = useState({ width, height });
+    const [oldPos, setOldPos] = useState(pos);
+    const [oldSize, setOldSize] = useState(size);
+
+    useEffect(() => {
+        const win = document.querySelector(`.win.pid-${pid}`) as HTMLElement;
+
+        if (isMaximized) {
+            setPos({ x: 0, y: 32 });
+            setSize({
+                width: window.innerWidth,
+                height: window.innerHeight - 32,
+            });
+        } else {
+            setPos(oldPos);
+            setSize(oldSize);
+        }
+    }, [isMaximized]);
+
     useEffect(() => {
         const win = document.querySelector(`.win.pid-${pid}`) as HTMLElement;
 
@@ -55,15 +76,18 @@ export default function Window({
         };
     }, []);
 
+    console.log(oldPos);
+
     return (
         <Rnd
+            size={size}
+            position={pos}
             minWidth={192}
             minHeight={24}
             bounds=".apps"
             dragHandleClassName="win-title"
             style={{ display: "flex", backgroundColor: "#eeeeee", zIndex: 10 }}
             className={`win flex-col rounded shadow border border-gray-900 focus:outline-none pid-${pid}`}
-            default={{ x: window.innerWidth / 2 - width / 2, y: window.innerHeight / 2 - height / 2, width, height }}
             resizeHandleStyles={{
                 bottom: { cursor: "ns-resize" },
                 bottomLeft: { cursor: "nesw-resize" },
@@ -74,6 +98,16 @@ export default function Window({
                 topLeft: { cursor: "nwse-resize" },
                 topRight: { cursor: "nesw-resize" },
             }}
+            disableDragging={isMaximized}
+            enableResizing={!isMaximized}
+            onDragStop={(e, { x, y }) => {
+                setOldPos({ x, y });
+                setPos({ x, y });
+            }}
+            onResize={(e, direction, ref) => {
+                setOldSize({ width: ref.offsetWidth, height: ref.offsetHeight });
+                setSize({ width: ref.offsetWidth, height: ref.offsetHeight });
+            }}
         >
             <article className="win-container flex flex-col flex-1 overflow-hidden">
                 <header className="win-header flex-shrink-0 flex items-center justify-between h-6">
@@ -81,7 +115,11 @@ export default function Window({
                     <h4 className="win-title overflow-hidden overflow-ellipsis select-none cursor-move flex-1 py-2 font-sans font-normal text-sm text-center">{title ?? "window"}</h4>
                     <nav className="win-menu flex items-center gap-1 mx-1">
                         <button className="win-min border-none focus:outline-none w-3 h-3 rounded-full cursor-pointer" style={{ background: "orange" }}></button>
-                        <button className="win-max border-none focus:outline-none w-3 h-3 rounded-full cursor-pointer" style={{ background: "limegreen" }}></button>
+                        <button
+                            className="win-max border-none focus:outline-none w-3 h-3 rounded-full cursor-pointer"
+                            style={{ background: "limegreen" }}
+                            onClick={() => setIsMaximized(!isMaximized)}
+                        ></button>
                         <button
                             className="win-close  border-none focus:outline-none w-3 h-3 rounded-full cursor-pointer"
                             style={{ background: "red" }}
