@@ -1,19 +1,43 @@
 import { GetStaticProps } from "next";
 import Head from "next/head";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ContextMenu from "../components/ContextMenu";
 import filesystem from "../lib/fs";
-import taskbar from "../lib/taskbar";
+import launch from "../lib/launch";
+import { typeToIcon, WindowType } from "../lib/windows";
 
 const hiddenContextMenu = <ContextMenu options={[]} x={0} y={0} />;
 
 export default function Index({ assetPrefix }: { assetPrefix: string }) {
     const fs = useContext(filesystem);
-    const tb = useContext(taskbar);
+
+    const [activeWindows, setActiveWindows] = useState<
+        {
+            pid: string;
+            type: WindowType;
+            component: React.ReactNode;
+        }[]
+    >([]);
+
+    const allApps: {
+        name: string;
+        type: WindowType;
+    }[] = [
+        {
+            name: "Googol",
+            type: "browser",
+        },
+    ];
 
     const [contextMenu, setContextMenu] = useState(<ContextMenu options={[]} x={0} y={0} />);
     const [launcherActive, setLauncherActive] = useState(false);
     const [launcherSearch, setLauncherSearch] = useState("");
+    const [filteredApps, setFilteredApps] = useState([...allApps]);
+
+    useEffect(() => {
+        if (launcherSearch) setFilteredApps([...allApps].filter((app) => app.name.toLowerCase().includes(launcherSearch.toLowerCase())));
+        else setFilteredApps([...allApps]);
+    }, [launcherSearch]);
 
     return (
         <>
@@ -22,11 +46,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
             </Head>
             <div
-                className="desktop absolute top-0 left-0 flex flex-col"
-                style={{
-                    height: "max(100vh, 56.25vw)",
-                    width: "max(100vw, 177.778vh)",
-                }}
+                className="desktop absolute top-0 left-0 w-full h-full flex flex-col"
                 onClick={(e) => {
                     setContextMenu(hiddenContextMenu);
                 }}
@@ -68,22 +88,23 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                     }}
                 >
                     <button
-                        className="launcher w-8 h-8 grid grid-cols-2 grid-rows-2 place-items-center border-r border-gray-900"
+                        className="launcher w-8 h-8 grid grid-cols-2 grid-rows-2 place-items-center border-r border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors"
                         onFocus={(e) => e.target.blur()}
-                        onClick={(e) => setLauncherActive(!launcherActive)}
+                        onClick={() => setLauncherActive(!launcherActive)}
                     >
                         <div className="bg-gray-600 w-1.5 h-1.5 -mr-1 -mb-1"></div>
                         <div className="bg-gray-600 w-1.5 h-1.5 -ml-1 -mb-1"></div>
                         <div className="bg-gray-600 w-1.5 h-1.5 -mr-1 -mt-1"></div>
                         <div className="bg-gray-600 w-1.5 h-1.5 -ml-1 -mt-1"></div>
                     </button>
-                    <div className="taskbar">
-                        {tb.map(({ pid, icon }) => (
-                            <div>
-                                <img src={icon} alt={pid} />
+                    <div className="taskbar flex-1 flex items-center">
+                        {activeWindows.map(({ pid, type }) => (
+                            <div className="w-8 h-8 grid place-items-center cursor-pointer hover:bg-gray-800 hover:bg-opacity-50 transition-colors">
+                                <img className="w-4 h-4" src={typeToIcon[type]} alt={pid} />
                             </div>
                         ))}
                     </div>
+                    <div className="taskbar-info"></div>
                     <div
                         className="launcher absolute top-full w-80 bg-gray-900 text-gray-100 px-2 py-1 shadow-sm flex flex-col"
                         style={{
@@ -101,9 +122,26 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                                 value={launcherSearch}
                             />
                         </div>
+                        <div className="flex flex-col gap-2 px-1 py-2">
+                            {filteredApps.map(({ name, type }, i) => (
+                                <div
+                                    className="flex items-center gap-2.5 cursor-pointer px-3 py-2 hover:bg-gray-800 hover:bg-opacity-25 rounded"
+                                    onClick={() => {
+                                        setActiveWindows([...activeWindows, launch(type, activeWindows, setActiveWindows)]);
+                                        setLauncherActive(false);
+                                        setLauncherSearch("");
+                                    }}
+                                    key={i}
+                                >
+                                    <img className="w-6 h-6" src={typeToIcon[type]} alt={name} />
+                                    <p>{name}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
-                <div className="apps"></div>
+                <div className="apps flex-1"></div>
+                {activeWindows.map(({ component }) => component)}
                 {contextMenu}
             </div>
         </>

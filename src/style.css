@@ -19,14 +19,6 @@ html {
     outline: 0px solid transparent;
 }
 
-.desktop > .taskbar > .launcher:hover {
-    transition: 0.15s opacity ease-in-out;
-}
-
-.desktop > .taskbar > .launcher:hover {
-    opacity: 0.9;
-}
-
 .desktop {
     background-image: url("https://wallpaperaccess.com/full/983279.jpg");
 }
