@@ -3,6 +3,7 @@ import Head from "next/head";
 import React, { useContext, useEffect, useState } from "react";
 import ContextMenu from "../components/ContextMenu";
 import filesystem from "../lib/fs";
+import getComponent from "../lib/getComponent";
 import launch from "../lib/launch";
 import { typeToIcon, WindowType } from "../lib/windows";
 
@@ -15,6 +16,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
         {
             pid: string;
             type: WindowType;
+            minimized: boolean;
             component: React.ReactNode;
         }[]
     >([]);
@@ -105,7 +107,22 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                     </button>
                     <div className="taskbar flex-1 flex items-center">
                         {activeWindows.map(({ pid, type }) => (
-                            <div className="w-8 h-8 grid place-items-center cursor-pointer hover:bg-gray-800 hover:bg-opacity-50 transition-colors">
+                            <div
+                                className="w-8 h-8 grid place-items-center cursor-pointer hover:bg-gray-800 hover:bg-opacity-50 transition-colors"
+                                onClick={() => {
+                                    const copy = [...activeWindows];
+
+                                    const index = copy.findIndex((w) => w.pid === pid)!;
+
+                                    copy[index].minimized = !copy[index].minimized;
+
+                                    const Component = getComponent[type];
+
+                                    copy[index].component = <Component pid={pid} windows={activeWindows} setWindows={setActiveWindows} minimized={copy[index].minimized} />;
+
+                                    setActiveWindows(copy);
+                                }}
+                            >
                                 <img className="w-4 h-4" src={typeToIcon[type]} alt={pid} />
                             </div>
                         ))}

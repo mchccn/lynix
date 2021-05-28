@@ -7,6 +7,7 @@ export default function launch(
     windows: {
         pid: string;
         type: WindowType;
+        minimized: boolean;
         component: React.ReactNode;
     }[],
     setWindows: Dispatch<
@@ -14,6 +15,7 @@ export default function launch(
             {
                 pid: string;
                 type: WindowType;
+                minimized: boolean;
                 component: React.ReactNode;
             }[]
         >
@@ -26,6 +28,7 @@ export default function launch(
             return {
                 pid,
                 type,
+                minimized: false,
                 component: <Browser pid={pid} windows={windows} setWindows={setWindows} />,
             };
     }
