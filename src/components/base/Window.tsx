@@ -78,6 +78,8 @@ export default function Window({
         toggles.add(pid, () => {
             setIsMinimized(!isMinimized);
 
+            activeWindows.moveToTop(pid);
+
             return isMinimized;
         });
 
@@ -92,8 +94,6 @@ export default function Window({
         };
     });
 
-    if (isMinimized) return null;
-
     return (
         <Rnd
             size={size}
@@ -103,7 +103,7 @@ export default function Window({
             bounds=".apps"
             dragHandleClassName="win-title"
             style={{ display: "flex", backgroundColor: "#eeeeee" }}
-            className={`win flex-col rounded shadow border border-gray-900 focus:outline-none z-20 pid-${pid}`}
+            className={`win flex-col rounded shadow border border-gray-900 focus:outline-none z-20 pid-${pid} ${isMinimized ? "opacity-0 pointer-events-none" : ""}`}
             resizeHandleStyles={{
                 bottom: { cursor: "ns-resize" },
                 bottomLeft: { cursor: "nesw-resize" },

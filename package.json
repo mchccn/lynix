@@ -13,6 +13,7 @@
         "next": "10.2.3",
         "react": "17.0.2",
         "react-dom": "17.0.2",
+        "react-game-snake": "^1.0.4",
         "react-rnd": "^10.3.0",
         "typescript": "^4.2.4"
     },
