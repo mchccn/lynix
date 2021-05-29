@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
-import minimizers from "../lib/minimizers";
-import windows from "../lib/windows";
+import minimizers from "../../lib/minimizers";
+import windows from "../../lib/windows";
 
 export default function Window({
     icon,

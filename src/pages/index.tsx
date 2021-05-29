@@ -2,16 +2,14 @@ import leven from "leven";
 import { GetStaticProps } from "next";
 import Head from "next/head";
 import React, { useContext, useEffect, useState } from "react";
+import Wrapper from "../components/base/Wrapper";
 import ContextMenu from "../components/ContextMenu";
-import Wrapper from "../components/Wrapper";
-import filesystem from "../lib/fs";
 import minimizers from "../lib/minimizers";
 import windows, { typeToIcon, WindowType } from "../lib/windows";
 
 const hiddenContextMenu = <ContextMenu options={[]} x={0} y={0} />;
 
 export default function Index({ assetPrefix }: { assetPrefix: string }) {
-    const fs = useContext(filesystem);
     const toggles = useContext(minimizers);
     const activeWindows = useContext(windows);
 

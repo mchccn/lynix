@@ -1,4 +1,4 @@
-import Window from "../Window";
+import Window from "../base/Window";
 
 export default function Browser({ pid, minimized }: { pid: string; minimized?: boolean }) {
     return (
