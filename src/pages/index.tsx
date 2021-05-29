@@ -55,7 +55,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
 
         window.addEventListener("keyup", keyup);
 
-        const interval = setInterval(() => setTime(new Date()), 1000);
+        const interval = setInterval(() => setTime(new Date()), 50);
 
         return () => {
             window.removeEventListener("keydown", keydown);

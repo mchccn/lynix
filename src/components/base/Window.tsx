@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
+import useWindowSize from "../../lib/hooks/useWindowSize";
 import minimizers from "../../lib/minimizers";
-import useWindowSize from "../../lib/useWindowSize";
 import windows from "../../lib/windows";
 
 export default function Window({
