@@ -12,6 +12,8 @@ export default function Window({
     width,
     height,
     className,
+    disableFullScreen,
+    disableResizing,
     minimized,
 }: {
     icon?: string | React.ReactNode;
@@ -21,6 +23,8 @@ export default function Window({
     width: number;
     height: number;
     className?: string;
+    disableFullScreen?: boolean;
+    disableResizing?: boolean;
     minimized?: boolean;
 }) {
     const [windowWidth, windowHeight] = useWindowSize();
@@ -63,6 +67,8 @@ export default function Window({
 
         if (!isMinimized) {
             win.tabIndex = 1;
+
+            win.id = pid;
 
             win.addEventListener("focus", focus);
 
@@ -109,7 +115,7 @@ export default function Window({
                 topRight: { cursor: "nesw-resize" },
             }}
             disableDragging={isMaximized}
-            enableResizing={!isMaximized}
+            enableResizing={!disableResizing ?? !isMaximized}
             onDragStop={(e, { x, y }) => {
                 setOldPos({ x, y });
                 setPos({ x, y });
@@ -132,9 +138,9 @@ export default function Window({
                             onClick={() => setIsMinimized(true)}
                         ></button>
                         <button
-                            className="win-max border-none focus:outline-none w-3 h-3 rounded-full cursor-pointer"
-                            style={{ background: "limegreen" }}
-                            onClick={() => setIsMaximized(!isMaximized)}
+                            className={`win-max border-none focus:outline-none w-3 h-3 rounded-full ${disableFullScreen ? "cursor-not-allowed" : "cursor-pointer"}`}
+                            style={{ background: disableFullScreen ? "gray" : "limegreen" }}
+                            onClick={() => (disableFullScreen ? undefined : setIsMaximized(!isMaximized))}
                         ></button>
                         <button
                             className="win-close border-none focus:outline-none w-3 h-3 rounded-full cursor-pointer"

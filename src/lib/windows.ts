@@ -1,10 +1,11 @@
 import { createContext } from "react";
 import launch from "./launch";
 
-export type WindowType = "browser";
+export type WindowType = "browser" | "snake";
 
 export const typeToIcon: Record<WindowType, string> = {
     browser: "favicon.ico", // ! TEMPORARY ICON
+    snake: "favicon.ico", // ! TEMPORARY ICON
 };
 
 const windows = createContext<{

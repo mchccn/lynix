@@ -23,6 +23,10 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
             name: "Googol",
             type: "browser",
         },
+        {
+            name: "Snaek",
+            type: "snake",
+        },
     ];
 
     const [contextMenu, setContextMenu] = useState(<ContextMenu options={[]} x={0} y={0} />);
@@ -68,16 +72,25 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
 
     const shortcuts = new Map<string, () => void>();
 
+    const closeActiveWindow = () => {
+        if (!activeWindows.current.length) return;
+
+        const win = [...document.querySelector(".desktop")!.childNodes].reverse()[0] as HTMLDivElement;
+
+        activeWindows.remove(win.id);
+    };
+
     shortcuts.set("ControlLeft+Space", () => {
         setLauncherActive(true);
 
         document.getElementById("launcher-search-input")!.focus();
     });
 
-    shortcuts.set("ControlRight+Space", () => {
-        setLauncherActive(false);
-    });
+    shortcuts.set("ControlRight+Space", () => setLauncherActive(false));
 
+    shortcuts.set("ControlLeft+KeyW", closeActiveWindow);
+    shortcuts.set("ControlRight+KeyW", closeActiveWindow);
+    
     return (
         <>
             <Head>
@@ -153,7 +166,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                     <div className="taskbar-info h-full px-2 grid place-items-center border-l border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors cursor-pointer flex-shrink-0">
                         <div className="general-info grid place-items-center">
                             <p className="tasknar-time text-gray-100 text-xs">
-                                {Math.abs(time.getHours() - 12)
+                                {(time.getHours() > 12 ? time.getHours() - 12 : time.getHours())
                                     .toString()
                                     .padStart(2, "0")}
                                 :{time.getMinutes().toString().padStart(2, "0")} {time.getHours() >= 12 ? "PM" : "AM"}
@@ -176,7 +189,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                                 type="text"
                                 onChange={(e) => setLauncherSearch(e.target.value)}
                                 value={launcherSearch}
-                                autoComplete="false"
+                                autoComplete="off"
                                 autoCapitalize="false"
                                 autoCorrect="false"
                                 onKeyDown={(e) => {
@@ -195,7 +208,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                                 <div
                                     className="flex items-center gap-2.5 cursor-pointer px-3 py-2 hover:bg-gray-800 hover:bg-opacity-25 rounded"
                                     onClick={() => {
-                                        activeWindows.add(filteredApps[0].type);
+                                        activeWindows.add(type);
                                         setLauncherActive(false);
                                         setLauncherSearch("");
                                     }}

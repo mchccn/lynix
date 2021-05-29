@@ -1,4 +1,5 @@
 import Browser from "../components/apps/Browser";
+import Snake from "../components/apps/Snake";
 import { WindowType } from "./windows";
 
 export default function launch(type: WindowType) {
@@ -10,6 +11,12 @@ export default function launch(type: WindowType) {
                 pid,
                 type,
                 component: <Browser pid={pid} />,
+            };
+        case "snake":
+            return {
+                pid,
+                type,
+                component: <Snake pid={pid} />,
             };
     }
 }
