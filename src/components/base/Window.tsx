@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
 import minimizers from "../../lib/minimizers";
+import useWindowSize from "../../lib/useWindowSize";
 import windows from "../../lib/windows";
 
 export default function Window({
@@ -20,13 +21,15 @@ export default function Window({
     height: number;
     minimized?: boolean;
 }) {
+    const [windowWidth, windowHeight] = useWindowSize();
+
     const activeWindows = useContext(windows);
 
     const toggles = useContext(minimizers);
 
     const [isMinimized, setIsMinimized] = useState(minimized ?? false);
-
     const [isMaximized, setIsMaximized] = useState(false);
+
     const [pos, setPos] = useState({ x: window.innerWidth / 2 - width / 2, y: (window.innerHeight - 32) / 2 - height / 2 });
     const [size, setSize] = useState({ width, height });
     const [oldPos, setOldPos] = useState(pos);
@@ -46,13 +49,15 @@ export default function Window({
     }, [isMaximized]);
 
     useEffect(() => {
+        if (isMaximized) setSize({ width: windowWidth, height: windowHeight });
+    }, [windowWidth, windowHeight]);
+
+    useEffect(() => {
         const win = document.querySelector(`.win.pid-${pid}`) as HTMLElement;
 
         const focus = () => activeWindows.moveToTop(pid);
 
-        const context = (e: MouseEvent) => {
-            e.stopPropagation();
-        };
+        const context = (e: MouseEvent) => e.stopPropagation();
 
         if (!isMinimized) {
             win.tabIndex = 1;

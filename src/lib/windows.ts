@@ -16,6 +16,7 @@ const windows = createContext<{
     add: (type: WindowType) => void;
     remove: (pid: string) => void;
     moveToTop: (pid: string) => void;
+    update: (fn: Function) => void;
 }>({
     current: [],
     add(type) {
@@ -31,6 +32,9 @@ const windows = createContext<{
                 1
             )[0]
         );
+    },
+    update(fn: Function) {
+        fn();
     },
 });
 

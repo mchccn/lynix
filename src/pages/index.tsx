@@ -13,7 +13,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
     const toggles = useContext(minimizers);
     const activeWindows = useContext(windows);
 
-    const [keys, setKeys] = useState<{ [key: string]: boolean }>({});
+    const [keys] = useState<{ [key: string]: boolean }>({});
 
     const allApps: {
         name: string;
@@ -46,14 +46,10 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
         const keydown = (e: KeyboardEvent) => {
             keys[e.code] = true;
 
-            for (const [shortcut, action] of shortcuts.entries()) {
-                if (shortcut.split("+").every((key) => keys[key])) return action();
-            }
+            for (const [shortcut, action] of shortcuts.entries()) if (shortcut.split("+").every((key) => keys[key])) return action();
         };
 
-        const keyup = (e: KeyboardEvent) => {
-            delete keys[e.code];
-        };
+        const keyup = (e: KeyboardEvent) => delete keys[e.code];
 
         window.addEventListener("keydown", keydown);
 
