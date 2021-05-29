@@ -11,6 +11,7 @@ export default function Window({
     pid,
     width,
     height,
+    className,
     minimized,
 }: {
     icon?: string | React.ReactNode;
@@ -19,6 +20,7 @@ export default function Window({
     pid: string;
     width: number;
     height: number;
+    className?: string;
     minimized?: boolean;
 }) {
     const [windowWidth, windowHeight] = useWindowSize();
@@ -141,7 +143,7 @@ export default function Window({
                         ></button>
                     </nav>
                 </header>
-                <main className="win-content flex-1 rounded bg-white mb-1 mx-1">{children}</main>
+                <main className={`win-content flex-1 rounded bg-white mb-1 mx-1 ${className ?? ""}`}>{children}</main>
             </article>
         </Rnd>
     );
