@@ -100,7 +100,7 @@ export default function Snake({ pid, minimized }: { pid: string; minimized?: boo
     return (
         <Window
             title={`Snaek – ${points}`}
-            icon={<img src="favicon.ico" alt="icon" />}
+            icon={<img className="w-4 h-4" src="/snaek.png" alt="icon" />}
             pid={pid}
             width={330}
             height={350}
