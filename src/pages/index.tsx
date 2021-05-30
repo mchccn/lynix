@@ -3,14 +3,14 @@ import React, { useContext, useEffect, useState } from "react";
 import Wrapper from "../components/base/Wrapper";
 import ContextMenu from "../components/ContextMenu";
 import Launcher from "../components/Launcher";
+import LauncherButton from "../components/LauncherButton";
 import Prelude from "../components/Prelude";
-import minimizers from "../lib/minimizers";
-import windows, { typeToIcon } from "../lib/windows";
+import Taskbar from "../components/Taskbar";
+import windows from "../lib/windows";
 
 const hiddenContextMenu = <ContextMenu options={[]} x={0} y={0} />;
 
 export default function Index({ assetPrefix }: { assetPrefix: string }) {
-    const toggles = useContext(minimizers);
     const activeWindows = useContext(windows);
 
     const [keys] = useState<{ [key: string]: boolean }>({});
@@ -110,31 +110,8 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                 }}
             >
                 <div className="taskbar-container relative bg-gray-800 bg-opacity-50 flex items-center h-8 w-full">
-                    <button
-                        className="launcher-button w-8 h-8 grid grid-cols-2 grid-rows-2 place-items-center border-r border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors focus:outline-none flex-shrink-0"
-                        onClick={() => setLauncherActive(!launcherActive)}
-                        aria-label="launcher"
-                    >
-                        <div className="bg-gray-600 w-1.5 h-1.5 -mr-1 -mb-1"></div>
-                        <div className="bg-gray-600 w-1.5 h-1.5 -ml-1 -mb-1"></div>
-                        <div className="bg-gray-600 w-1.5 h-1.5 -mr-1 -mt-1"></div>
-                        <div className="bg-gray-600 w-1.5 h-1.5 -ml-1 -mt-1"></div>
-                    </button>
-                    <div className="taskbar-wrapper flex min-w-0 overflow-x-scroll hide-scrollbar flex-1">
-                        <div className="taskbar flex items-center">
-                            {activeWindows.ordered.map(({ pid, type }, i) => (
-                                <div
-                                    className="w-8 h-8 grid place-items-center cursor-pointer hover:bg-gray-800 hover:bg-opacity-50 transition-colors"
-                                    onClick={() => {
-                                        toggles.current[pid]();
-                                    }}
-                                    key={i}
-                                >
-                                    <img className="w-4 h-4 select-none" src={typeToIcon[type]} alt={pid} />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                    <LauncherButton launcherActive={launcherActive} setLauncherActive={setLauncherActive} />
+                    <Taskbar />
                     <div className="taskbar-info h-full px-2 grid place-items-center border-l border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors cursor-pointer flex-shrink-0">
                         <div className="general-info grid place-items-center">
                             <p className="tasknar-time text-gray-100 text-xs">
