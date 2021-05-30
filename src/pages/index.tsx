@@ -1,73 +1,33 @@
 import { GetStaticProps } from "next";
-import React, { useContext, useEffect, useState } from "react";
-import Wrapper from "../components/base/Wrapper";
+import React, { useEffect, useState } from "react";
+import ActiveWindows from "../components/ActiveWindows";
 import ContextMenu from "../components/ContextMenu";
 import Prelude from "../components/Prelude";
+import Shortcuts from "../components/Shortcuts";
 import Launcher from "../components/tasks/Launcher";
 import LauncherButton from "../components/tasks/LauncherButton";
 import Taskbar from "../components/tasks/Taskbar";
 import TaskbarInfo from "../components/tasks/TaskbarInfo";
-import windows from "../lib/global/windows";
 
 const hiddenContextMenu = <ContextMenu options={[]} x={0} y={0} />;
 
 export default function Index({ assetPrefix }: { assetPrefix: string }) {
-    const activeWindows = useContext(windows);
-
-    const [keys] = useState<{ [key: string]: boolean }>({});
-
     const [contextMenu, setContextMenu] = useState(<ContextMenu options={[]} x={0} y={0} />);
     const [launcherActive, setLauncherActive] = useState(false);
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {
-        const keydown = (e: KeyboardEvent) => {
-            keys[e.code] = true;
-
-            for (const [shortcut, action] of shortcuts.entries()) if (shortcut.split("+").every((key) => keys[key])) return action();
-        };
-
-        const keyup = (e: KeyboardEvent) => delete keys[e.code];
-
-        window.addEventListener("keydown", keydown);
-
-        window.addEventListener("keyup", keyup);
-
         const interval = setInterval(() => setTime(new Date()), 50);
 
         return () => {
-            window.removeEventListener("keydown", keydown);
-
-            window.removeEventListener("keyup", keyup);
-
             clearInterval(interval);
         };
     }, []);
 
-    const shortcuts = new Map<string, () => void>();
-
-    const closeActiveWindow = () => {
-        if (!activeWindows.current.length) return;
-
-        const win = [...document.querySelector(".desktop")!.childNodes].reverse()[0] as HTMLDivElement;
-
-        activeWindows.remove(win.id);
-    };
-
-    shortcuts.set("ControlLeft+Space", () => {
-        setLauncherActive(true);
-
-        document.getElementById("launcher-search-input")!.focus();
-    });
-
-    shortcuts.set("ControlRight+Space", () => setLauncherActive(false));
-
-    shortcuts.set("ControlLeft+KeyW", closeActiveWindow);
-    shortcuts.set("ControlRight+KeyW", closeActiveWindow);
-
     return (
         <>
             <Prelude />
+            <Shortcuts setLauncherActive={setLauncherActive} />
             <div
                 className="desktop absolute top-0 left-0 w-full h-full flex flex-col"
                 onClick={(e) => {
@@ -117,9 +77,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                 </div>
                 <div className="apps flex-1"></div>
                 {contextMenu}
-                {activeWindows.current.map(({ component, pid }) => (
-                    <Wrapper key={pid}>{component}</Wrapper>
-                ))}
+                <ActiveWindows />
             </div>
         </>
     );
