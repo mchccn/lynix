@@ -1,6 +1,6 @@
 import Browser from "../components/apps/Browser";
 import Snake from "../components/apps/Snake";
-import { WindowType } from "./windows";
+import { WindowType } from "./global/windows";
 
 export default function launch(type: WindowType) {
     const pid = Date.now().toString(16).padEnd(16, "0");

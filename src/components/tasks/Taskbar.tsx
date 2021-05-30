@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import minimizers from "../lib/minimizers";
-import windows, { typeToIcon } from "../lib/windows";
+import minimizers from "../../lib/global/minimizers";
+import windows, { typeToIcon } from "../../lib/global/windows";
 
 export default function Taskbar() {
     const toggles = useContext(minimizers);

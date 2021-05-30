@@ -1,6 +1,6 @@
 import leven from "leven";
 import { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
-import windows, { allApps, typeToIcon } from "../lib/windows";
+import windows, { allApps, typeToIcon } from "../../lib/global/windows";
 
 export default function Launcher({ launcherActive, setLauncherActive }: { launcherActive: boolean; setLauncherActive: Dispatch<SetStateAction<boolean>> }) {
     const activeWindows = useContext(windows);

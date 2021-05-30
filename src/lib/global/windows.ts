@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import launch from "./launch";
+import launch from "../launch";
 
 export type WindowType = "browser" | "snake";
 

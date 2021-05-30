@@ -2,11 +2,12 @@ import { GetStaticProps } from "next";
 import React, { useContext, useEffect, useState } from "react";
 import Wrapper from "../components/base/Wrapper";
 import ContextMenu from "../components/ContextMenu";
-import Launcher from "../components/Launcher";
-import LauncherButton from "../components/LauncherButton";
 import Prelude from "../components/Prelude";
-import Taskbar from "../components/Taskbar";
-import windows from "../lib/windows";
+import Launcher from "../components/tasks/Launcher";
+import LauncherButton from "../components/tasks/LauncherButton";
+import Taskbar from "../components/tasks/Taskbar";
+import TaskbarInfo from "../components/tasks/TaskbarInfo";
+import windows from "../lib/global/windows";
 
 const hiddenContextMenu = <ContextMenu options={[]} x={0} y={0} />;
 
@@ -17,7 +18,6 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
 
     const [contextMenu, setContextMenu] = useState(<ContextMenu options={[]} x={0} y={0} />);
     const [launcherActive, setLauncherActive] = useState(false);
-
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {
@@ -112,14 +112,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
                 <div className="taskbar-container relative bg-gray-800 bg-opacity-50 flex items-center h-8 w-full">
                     <LauncherButton launcherActive={launcherActive} setLauncherActive={setLauncherActive} />
                     <Taskbar />
-                    <div className="taskbar-info h-full px-2 grid place-items-center border-l border-gray-900 hover:bg-gray-800 hover:bg-opacity-50 transition-colors cursor-pointer flex-shrink-0">
-                        <div className="general-info grid place-items-center">
-                            <p className="tasknar-time text-gray-100 text-xs">
-                                {(time.getHours() > 12 ? time.getHours() - 12 : time.getHours()).toString().padStart(2, "0")}:{time.getMinutes().toString().padStart(2, "0")}{" "}
-                                {time.getHours() >= 12 ? "PM" : "AM"}
-                            </p>
-                        </div>
-                    </div>
+                    <TaskbarInfo time={time} />
                     <Launcher launcherActive={launcherActive} setLauncherActive={setLauncherActive} />
                 </div>
                 <div className="apps flex-1"></div>

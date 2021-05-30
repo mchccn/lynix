@@ -1,6 +1,6 @@
 import { AppProps } from "next/dist/next-server/lib/router/router";
 import "tailwindcss/tailwind.css";
-import minimizers from "../lib/minimizers";
+import minimizers from "../lib/global/minimizers";
 import "../style.css";
 
 export default function App({ Component, pageProps }: AppProps) {
