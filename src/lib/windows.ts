@@ -8,6 +8,20 @@ export const typeToIcon: Record<WindowType, string> = {
     snake: "snaek.png",
 };
 
+export const allApps: {
+    name: string;
+    type: WindowType;
+}[] = [
+    {
+        name: "Googol",
+        type: "browser",
+    },
+    {
+        name: "Snaek",
+        type: "snake",
+    },
+];
+
 const windows = createContext<{
     ordered: {
         pid: string;
