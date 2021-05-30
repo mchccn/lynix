@@ -7,9 +7,10 @@ import Window from "../base/Window";
 
 export default function Snake({ pid, minimized }: { pid: string; minimized?: boolean }) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const dir = useRef([0, -1]);
+    const keys = useRef<string[]>([]);
     const [snake, setSnake] = useState(SNAKE_START);
     const [apple, setApple] = useState<[number, number]>(APPLE_START);
-    const [dir, setDir] = useState([0, -1]);
     const [speed, setSpeed] = useState<number | undefined>(SPEED);
     const [gameOver, setGameOver] = useState(false);
     const [points, setPoints] = useState(0);
@@ -22,7 +23,11 @@ export default function Snake({ pid, minimized }: { pid: string; minimized?: boo
         setGameOver(true);
     };
 
-    const moveSnake = ({ keyCode }: KeyboardEvent) => keyCode >= 37 && keyCode <= 40 && setDir(DIRECTIONS[keyCode as keyof typeof DIRECTIONS]);
+    const keydown = ({ code }: KeyboardEvent) => {
+        if (keys.current[keys.current.length - 1] === code) return;
+
+        keys.current.push(code);
+    };
 
     const createApple = () => apple.map((_a, i) => Math.floor(Math.random() * (CANVAS_SIZE[i] / SCALE)));
 
@@ -53,8 +58,17 @@ export default function Snake({ pid, minimized }: { pid: string; minimized?: boo
     };
 
     const gameLoop = () => {
+        const [x1, y1] = dir.current;
+        const [x2, y2] = DIRECTIONS[keys.current.shift()! as keyof typeof DIRECTIONS] ?? [];
+
+        if (typeof x2 === "number" && typeof y2 === "number") {
+            if ((x1 === -1 && x2 === 1) || (x1 === 1 && x2 === -1) || (y1 === -1 && y2 === 1) || (y1 === 1 && y2 === -1)) return;
+
+            dir.current = [x2, y2];
+        }
+
         const snakeCopy = [...snake];
-        const newSnakeHead: [number, number] = [snakeCopy[0][0] + dir[0], snakeCopy[0][1] + dir[1]];
+        const newSnakeHead: [number, number] = [snakeCopy[0][0] + dir.current[0], snakeCopy[0][1] + dir.current[1]];
 
         snakeCopy.unshift(newSnakeHead);
 
@@ -66,9 +80,10 @@ export default function Snake({ pid, minimized }: { pid: string; minimized?: boo
     };
 
     const startGame = () => {
+        dir.current = [0, -1];
+        keys.current = [];
         setSnake(SNAKE_START);
         setApple(APPLE_START);
-        setDir([0, -1]);
         setSpeed(SPEED);
         setGameOver(false);
         setPoints(0);
@@ -90,10 +105,10 @@ export default function Snake({ pid, minimized }: { pid: string; minimized?: boo
     }, [snake, apple, gameOver]);
 
     useEffect(() => {
-        window.addEventListener("keydown", moveSnake);
+        window.addEventListener("keydown", keydown);
 
         return () => {
-            window.removeEventListener("keydown", moveSnake);
+            window.removeEventListener("keydown", keydown);
         };
     }, []);
 
@@ -111,7 +126,9 @@ export default function Snake({ pid, minimized }: { pid: string; minimized?: boo
         >
             <div className="w-full h-full flex flex-col" onClick={startGame}>
                 {gameOver ? (
-                    <div className="flex-1 grid place-items-center">ur ded</div>
+                    <div className="flex-1 grid place-items-center">
+                        <h1 className="text-xl">You died!</h1>
+                    </div>
                 ) : (
                     <canvas className="flex-1 bg-gray-900" ref={canvasRef} width={`${CANVAS_SIZE[0]}px`} height={`${CANVAS_SIZE[1]}px`} />
                 )}

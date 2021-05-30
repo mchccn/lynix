@@ -12,10 +12,14 @@ const SCALE = 40;
 const SPEED = 1000 / 7.5;
 
 const DIRECTIONS = {
-    38: [0, -1],
-    40: [0, 1],
-    37: [-1, 0],
-    39: [1, 0],
+    KeyW: [0, -1],
+    KeyS: [0, 1],
+    KeyA: [-1, 0],
+    KeyD: [1, 0],
+    ArrowUp: [0, -1],
+    ArrowDown: [0, 1],
+    ArrowLeft: [-1, 0],
+    ArrowRight: [1, 0],
 };
 
 export { CANVAS_SIZE, SNAKE_START, APPLE_START, SCALE, SPEED, DIRECTIONS };
