@@ -1,69 +1,121 @@
-import React, { useEffect, useState } from "react";
+/** Credits to Weibenfalk at https://github.com/weibenfalk ♥ */
+
+import React, { useEffect, useRef, useState } from "react";
+import { APPLE_START, CANVAS_SIZE, DIRECTIONS, SCALE, SNAKE_START, SPEED } from "../../lib/constants/snake";
+import { useInterval } from "../../lib/hooks/useInterval";
 import Window from "../base/Window";
 
 export default function Snake({ pid, minimized }: { pid: string; minimized?: boolean }) {
-    const [dir, setDir] = useState("d");
-    const [body, setBody] = useState([{ x: 0, y: 0 }]);
-    const [board, setBoard] = useState(new Array(10).fill(undefined).map(() => new Array(10).fill(0)) as number[][]);
-    const [keys, setKeys] = useState([] as string[]);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const [snake, setSnake] = useState(SNAKE_START);
+    const [apple, setApple] = useState<[number, number]>(APPLE_START);
+    const [dir, setDir] = useState([0, -1]);
+    const [speed, setSpeed] = useState<number | undefined>(SPEED);
+    const [gameOver, setGameOver] = useState(false);
+    const [points, setPoints] = useState(0);
 
-    const cellToColor = ["bg-black bg-opacity-90", "bg-green-500", "bg-red-500"];
+    useInterval(() => gameLoop(), speed);
+
+    const endGame = () => {
+        setSpeed(undefined);
+
+        setGameOver(true);
+    };
+
+    const moveSnake = ({ keyCode }: KeyboardEvent) => keyCode >= 37 && keyCode <= 40 && setDir(DIRECTIONS[keyCode as keyof typeof DIRECTIONS]);
+
+    const createApple = () => apple.map((_a, i) => Math.floor(Math.random() * (CANVAS_SIZE[i] / SCALE)));
+
+    const checkCollision = (piece: [number, number], snk = snake) => {
+        if (piece[0] * SCALE >= CANVAS_SIZE[0] || piece[0] < 0 || piece[1] * SCALE >= CANVAS_SIZE[1] || piece[1] < 0) return true;
+
+        for (const segment of snk) {
+            if (piece[0] === segment[0] && piece[1] === segment[1]) return true;
+        }
+
+        return false;
+    };
+
+    const checkAppleCollision = (newSnake: [number, number][]) => {
+        if (newSnake[0][0] === apple[0] && newSnake[0][1] === apple[1]) {
+            let newApple = createApple();
+
+            while (checkCollision(newApple as [number, number], newSnake)) newApple = createApple();
+
+            setApple(newApple as [number, number]);
+
+            setPoints(points + 1);
+
+            return true;
+        }
+
+        return false;
+    };
+
+    const gameLoop = () => {
+        const snakeCopy = [...snake];
+        const newSnakeHead: [number, number] = [snakeCopy[0][0] + dir[0], snakeCopy[0][1] + dir[1]];
+
+        snakeCopy.unshift(newSnakeHead);
+
+        if (checkCollision(newSnakeHead)) endGame();
+
+        if (!checkAppleCollision(snakeCopy as [number, number][])) snakeCopy.pop();
+
+        setSnake(snakeCopy);
+    };
+
+    const startGame = () => {
+        setSnake(SNAKE_START);
+        setApple(APPLE_START);
+        setDir([0, -1]);
+        setSpeed(SPEED);
+        setGameOver(false);
+        setPoints(0);
+    };
 
     useEffect(() => {
-        const keydown = (e: KeyboardEvent) => (keys[keys.length - 1] === e.key.toLowerCase() ? undefined : setKeys(keys.concat(e.key.toLowerCase())));
+        if (!canvasRef.current) return;
 
-        window.addEventListener("keydown", keydown);
+        const ctx = canvasRef.current.getContext("2d")!;
 
-        const interval = setInterval(() => {
-            const keysCopy = [...keys];
+        ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        ctx.fillStyle = "#10b981";
 
-            let dirCopy = dir;
+        snake.forEach(([x, y]) => ctx.fillRect(x, y, 1, 1));
 
-            const newDir = (() => {
-                let key = keysCopy.shift();
+        ctx.fillStyle = "#ef4445";
+        ctx.fillRect(apple[0], apple[1], 1, 1);
+    }, [snake, apple, gameOver]);
 
-                while (key && !["w", "a", "s", "d"].includes(key)) key = keysCopy.shift();
-
-                return key;
-            })();
-
-            if (
-                newDir &&
-                ["w", "a", "s", "d"].includes(newDir) &&
-                (dir !== "d" || newDir !== "a") &&
-                (dir !== "a" || newDir !== "d") &&
-                (dir !== "w" || newDir !== "s") &&
-                (dir !== "s" || newDir !== "w")
-            ) {
-                dirCopy = newDir;
-            }
-
-            switch (dirCopy) {
-            }
-
-            console.log(dirCopy);
-
-            setDir(dirCopy);
-
-            setKeys(keysCopy);
-        }, 1000 / 3);
+    useEffect(() => {
+        window.addEventListener("keydown", moveSnake);
 
         return () => {
-            clearInterval(interval);
-
-            window.removeEventListener("keydown", keydown);
+            window.removeEventListener("keydown", moveSnake);
         };
-    });
+    }, []);
 
     return (
-        <Window title="Snaek" icon={<img src="favicon.ico" alt="icon" />} pid={pid} width={330} height={350} className="flex flex-col" minimized={minimized} disableResizing disableFullScreen>
-            {board.map((row) => (
-                <div className="flex">
-                    {row.map((cell) => (
-                        <div className={`w-8 h-8 ${cellToColor[cell]}`}></div>
-                    ))}
-                </div>
-            ))}
+        <Window
+            title={`Snaek – ${points}`}
+            icon={<img src="favicon.ico" alt="icon" />}
+            pid={pid}
+            width={330}
+            height={350}
+            className="flex flex-col"
+            minimized={minimized}
+            disableResizing
+            disableFullScreen
+        >
+            <div className="w-full h-full flex flex-col" onClick={startGame}>
+                {gameOver ? (
+                    <div className="flex-1 grid place-items-center">ur ded</div>
+                ) : (
+                    <canvas className="flex-1 bg-gray-900" ref={canvasRef} width={`${CANVAS_SIZE[0]}px`} height={`${CANVAS_SIZE[1]}px`} />
+                )}
+            </div>
         </Window>
     );
 }

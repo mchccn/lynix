@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import FileSystem from "./FileSystem";
+import FileSystem from "./classes/FileSystem";
 
 const filesystem = createContext(new FileSystem());
 
