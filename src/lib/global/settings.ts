@@ -42,9 +42,18 @@ const settings = createContext({
         this.initiated = true;
     },
     async save() {
-        console.log(this.current);
+        try {
+            await db.settings.update(0, this.current);
+        } catch (error) {
+            console.error("Failed to save settings:", error);
 
-        await db.settings.update(0, this.current);
+            //@ts-ignore
+            await db.settings.clear();
+
+            this.initiated = false;
+
+            await this.init();
+        }
     },
 });
 
