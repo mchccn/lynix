@@ -9,11 +9,15 @@ export default function Launcher({ launcherActive, setLauncherActive }: { launch
     const [filteredApps, setFilteredApps] = useState([...allApps]);
 
     useEffect(() => {
-        if (launcherSearch)
+        if (launcherSearch.trim())
             setFilteredApps(
                 [...allApps]
-                    .filter((app) => app.name.toLowerCase().includes(launcherSearch.toLowerCase()))
-                    .sort((a, b) => leven(b.name.toLowerCase(), launcherSearch.toLowerCase()) - leven(a.name.toLowerCase(), launcherSearch.toLowerCase()))
+                    .filter((app) => app.name.trim().toLowerCase().includes(launcherSearch.trim().toLowerCase()))
+                    .sort(
+                        (a, b) =>
+                            leven(b.name.trim().toLowerCase(), launcherSearch.trim().toLowerCase()) -
+                            leven(a.name.trim().toLowerCase(), launcherSearch.trim().toLowerCase())
+                    )
             );
         else setFilteredApps([...allApps]);
     }, [launcherSearch]);
@@ -26,7 +30,14 @@ export default function Launcher({ launcherActive, setLauncherActive }: { launch
             }}
         >
             <div className="launcher-search flex items-center py-1 relative">
-                <svg className="w-4 h-4 stroke-current text-blue-600 absolute ml-2" width="24" height="24" viewBox="0 0 24 24" fillRule="evenodd" clipRule="evenodd">
+                <svg
+                    className="w-4 h-4 stroke-current text-blue-600 absolute ml-2"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                >
                     <path d="M15.853 16.56c-1.683 1.517-3.911 2.44-6.353 2.44-5.243 0-9.5-4.257-9.5-9.5s4.257-9.5 9.5-9.5 9.5 4.257 9.5 9.5c0 2.442-.923 4.67-2.44 6.353l7.44 7.44-.707.707-7.44-7.44zm-6.353-15.56c4.691 0 8.5 3.809 8.5 8.5s-3.809 8.5-8.5 8.5-8.5-3.809-8.5-8.5 3.809-8.5 8.5-8.5z" />
                 </svg>
                 <input
