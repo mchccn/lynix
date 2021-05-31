@@ -1,28 +1,28 @@
 {
-    "name": "lynix",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "export": "next export",
-        "start": "next start"
-    },
-    "dependencies": {
-        "dexie": "^3.0.3",
-        "leven": "^3.1.0",
-        "next": "10.2.3",
-        "react": "17.0.2",
-        "react-dom": "17.0.2",
-        "react-game-snake": "^1.0.4",
-        "react-rnd": "^10.3.0",
-        "typescript": "^4.2.4"
-    },
-    "devDependencies": {
-        "@types/node": "^15.6.1",
-        "@types/react": "^17.0.8",
-        "autoprefixer": "^9",
-        "postcss": "^7",
-        "tailwindcss": "npm:@tailwindcss/postcss7-compat"
-    }
+  "name": "lynix",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "export": "next export",
+    "start": "next start"
+  },
+  "dependencies": {
+    "dexie": "^3.0.3",
+    "leven": "^3.1.0",
+    "next": "10.2.3",
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-game-snake": "^1.0.4",
+    "react-rnd": "^10.3.0",
+    "typescript": "^4.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^15.6.1",
+    "@types/react": "^17.0.8",
+    "autoprefixer": "^9",
+    "postcss": "^7",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat"
+  }
 }

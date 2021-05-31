@@ -1,11 +1,12 @@
 import { createContext } from "react";
 import launch from "../launch";
 
-export type WindowType = "browser" | "snake";
+export type WindowType = "browser" | "snake" | "settings";
 
 export const typeToIcon: Record<WindowType, string> = {
     browser: "favicon.ico",
     snake: "snaek.png",
+    settings: "favicon.ico",
 };
 
 export const allApps: {
@@ -19,6 +20,10 @@ export const allApps: {
     {
         name: "Snaek",
         type: "snake",
+    },
+    {
+        name: "Settings",
+        type: "settings",
     },
 ];
 

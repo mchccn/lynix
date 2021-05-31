@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { APPLE_START, CANVAS_SIZE, DIRECTIONS, SCALE, SNAKE_START, SPEED } from "../../lib/constants/snake";
+import { typeToIcon } from "../../lib/global/windows";
 import { useInterval } from "../../lib/hooks/useInterval";
 import Window from "../base/Window";
 
@@ -115,7 +116,7 @@ export default function Snake({ pid, minimized }: { pid: string; minimized?: boo
     return (
         <Window
             title={`Snaek – ${points}`}
-            icon={<img className="w-4 h-4" src="/snaek.png" alt="icon" />}
+            icon={<img className="w-4 h-4" src={typeToIcon["snake"]} alt="icon" />}
             pid={pid}
             width={330}
             height={350}

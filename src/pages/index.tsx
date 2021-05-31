@@ -1,5 +1,5 @@
 import { GetStaticProps } from "next";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ActiveWindows from "../components/ActiveWindows";
 import ContextMenu from "../components/ContextMenu";
 import Prelude from "../components/Prelude";
@@ -8,16 +8,21 @@ import Launcher from "../components/tasks/Launcher";
 import LauncherButton from "../components/tasks/LauncherButton";
 import Taskbar from "../components/tasks/Taskbar";
 import TaskbarInfo from "../components/tasks/TaskbarInfo";
+import settings from "../lib/global/settings";
 
 const hiddenContextMenu = <ContextMenu options={[]} x={0} y={0} />;
 
 export default function Index({ assetPrefix }: { assetPrefix: string }) {
+    const config = useContext(settings);
+
     const [contextMenu, setContextMenu] = useState(<ContextMenu options={[]} x={0} y={0} />);
     const [launcherActive, setLauncherActive] = useState(false);
     const [time, setTime] = useState(new Date());
 
     useEffect(() => {
         const interval = setInterval(() => setTime(new Date()), 50);
+
+        config.init();
 
         return () => {
             clearInterval(interval);
@@ -28,6 +33,7 @@ export default function Index({ assetPrefix }: { assetPrefix: string }) {
         <>
             <Prelude />
             <Shortcuts setLauncherActive={setLauncherActive} />
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ filter: `brightness(${config.current.brightness * 2})` }}></div>
             <div
                 className="desktop absolute top-0 left-0 w-full h-full flex flex-col"
                 onClick={(e) => {
