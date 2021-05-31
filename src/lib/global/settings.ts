@@ -25,7 +25,7 @@ db.version(1).stores({
 });
 
 const settings = createContext({
-    current: {} as { id: number; brightness: number },
+    current: {} as { brightness: number },
     initiated: false,
     async init() {
         if (this.initiated) return;
@@ -34,19 +34,17 @@ const settings = createContext({
         const stored = (await db.settings.toArray())[0];
 
         //@ts-ignore
-        this.current = stored ?? { brightness: 0.5 };
+        this.current = stored ?? { brightness: 1 };
 
         //@ts-ignore
-        if (!stored) {
-            const id = await db.settings.add(this.current);
-
-            this.current.id = id;
-        }
+        if (!stored) await db.settings.add(this.current);
 
         this.initiated = true;
     },
     async save() {
-        await db.settings.update(this.current.id, this.current);
+        console.log(this.current);
+
+        await db.settings.update(0, this.current);
     },
 });
 
